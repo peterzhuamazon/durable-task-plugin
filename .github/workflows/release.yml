@@ -1,0 +1,36 @@
+name: Release drafter
+
+# Push events to every tag not containing "/"
+#
+# Publish the commons JAR to Maven Local, and create 'artifacts.tar.gz'
+# using build dir and adding the contents of repository
+#
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  draft-a-release:
+    name: Draft a release
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+      - name: Build with Gradle
+        run: mvn clean package -DskipTests -Dmaven.test.skip=true
+      - name: Draft a release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          generate_release_notes: true
+          make_latest: true
+          files: |
+            target/durable-task.hpi
+
