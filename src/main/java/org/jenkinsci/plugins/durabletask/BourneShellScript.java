@@ -141,8 +141,7 @@ public final class BourneShellScript extends FileMonitoringTask {
         ShellController c = new ShellController(ws,(os == OsType.ZOS), cookieValue, jenkinsResultTxtEncoding);
         FilePath shf = c.getScriptFile(ws);
 
-        // JENKINS-70874: if a new process is forked during this call, the writeable file handle will be copied and leading to the "Text file busy" issue
-        // when executing the script.
+        // here we need to keep the file open for a longer time to make the race to happen more likely
         shf.write(script, scriptEncodingCharset);
 
         String shell = null;
