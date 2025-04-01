@@ -141,7 +141,6 @@ public final class BourneShellScript extends FileMonitoringTask {
         ShellController c = new ShellController(ws,(os == OsType.ZOS), cookieValue, jenkinsResultTxtEncoding);
         FilePath shf = c.getScriptFile(ws);
 
-        // here we need to keep the file open for a longer time to make the race to happen more likely
         shf.write(script, scriptEncodingCharset);
 
         String shell = null;
@@ -230,32 +229,27 @@ public final class BourneShellScript extends FileMonitoringTask {
         if (os == OsType.WINDOWS) { // JENKINS-40255
             scriptPath = scriptPath.replace("\\", "/"); // cygwin sh understands mixed path  (ie : "c:/jenkins/workspace/script.sh" )
         }
-        String scriptPathCopy = scriptPath + ".copy"; // copy file to protect against "Text file busy", see JENKINS-70874
         if (capturingOutput) {
-            cmdString = String.format("cp '%s' '%s'; { while [ -d '%s' -a \\! -f '%s' ]; do touch '%s'; sleep 3; done } & jsc=%s; %s=$jsc %s '%s' > '%s' 2> '%s'; echo $? > '%s.tmp'; mv '%s.tmp' '%s'; wait",
-                                      scriptPath,
-                                      scriptPathCopy,
+            cmdString = String.format("{ while [ -d '%s' -a \\! -f '%s' ]; do touch '%s'; sleep 3; done } & jsc=%s; %s=$jsc %s '%s' > '%s' 2> '%s'; echo $? > '%s.tmp'; mv '%s.tmp' '%s'; wait",
                                       controlDir,
                                       resultFile,
                                       logFile,
                                       cookieValue,
                                       cookieVariable,
                                       interpreter,
-                                      scriptPathCopy,
+                                      scriptPath,
                                       c.getOutputFile(ws),
                                       logFile,
                                       resultFile, resultFile, resultFile);
         } else {
-            cmdString = String.format("cp '%s' '%s'; { while [ -d '%s' -a \\! -f '%s' ]; do touch '%s'; sleep 3; done } & jsc=%s; %s=$jsc %s '%s' > '%s' 2>&1; echo $? > '%s.tmp'; mv '%s.tmp' '%s'; wait",
-                                      scriptPath,
-                                      scriptPathCopy,
+            cmdString = String.format("{ while [ -d '%s' -a \\! -f '%s' ]; do touch '%s'; sleep 3; done } & jsc=%s; %s=$jsc %s '%s' > '%s' 2>&1; echo $? > '%s.tmp'; mv '%s.tmp' '%s'; wait",
                                       controlDir,
                                       resultFile,
                                       logFile,
                                       cookieValue,
                                       cookieVariable,
                                       interpreter,
-                                      scriptPathCopy,
+                                      scriptPath,
                                       logFile,
                                       resultFile, resultFile, resultFile);
         }
