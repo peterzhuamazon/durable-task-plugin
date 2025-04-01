@@ -20,7 +20,7 @@
     </licenses>
 
     <properties>
-        <changelist>999999-SNAPSHOT</changelist>
+        <changelist>587.v84b_877235b_45</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.479</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.1</jenkins.version>
